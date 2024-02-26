@@ -13,4 +13,8 @@ export type TValantisApiGetFieldsProps = {
   limit: number
 }
 
-export type TValantisApiFilterProps = {}
+export type TValantisApiFilterProps = {
+  name?: string
+  brand?: string
+  price?: number
+}

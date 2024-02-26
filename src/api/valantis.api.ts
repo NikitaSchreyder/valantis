@@ -13,7 +13,7 @@ export class ValantisApi {
   private readonly axiosApi: AxiosInstance
 
   constructor() {
-    const date = new Date().toLocaleString('ru', { dateStyle: 'short' }).split('.').reverse().join().replaceAll(',', '')
+    const date = new Date().toLocaleString('ru', { dateStyle: 'short', timeZone: "Europe/Moscow" }).split('.').reverse().join().replaceAll(',', '')
     this.API_AUTH = md5(`Valantis_${date}`)
     
     this.axiosApi = axios.create({
@@ -36,5 +36,8 @@ export class ValantisApi {
     return await this.axiosApi.post('', { action: 'get_fields', params: props })
   }
 
-  async filter(props: TValantisApiFilterProps) {}
+  async filter(props: TValantisApiFilterProps) {
+    return await this.axiosApi.post('', { action: 'filter', params: props })
+
+  }
 }

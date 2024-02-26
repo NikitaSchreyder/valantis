@@ -14,37 +14,22 @@ const App: React.FC = () => {
 
   const [items, setItems] = useState<IItemProps[]>([])
   const [itemsIds, setItemsIds] = useState<string[]>([])
-  const [filterBy, setFilterBy] = useState<string>('name')
+  const [filterBy, setFilterBy] = useState<string | undefined>(undefined)
+  const [filterValue, setFilterValue] = useState<string | number>()
   const [pagesCount, setPagesCount] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [isError, setIsError] = useState<boolean>(false)
 
   const pageChangeHandler = (page: number) => setCurrentPage(page)
 
-  // Get items count
-  useEffect(() => {
-    valantisApi.getIds({})
-      .then(response => {
-        const { data: { result } } = response
-        const totalItems = result.length
-        const pages = Math.ceil(totalItems / limit)
-        setPagesCount(pages)
-      })
-        .catch(err => setIsError(true))
-  }, [])
-
   // Get items ids
   useEffect(() => {
-    setIsLoading(true)
     const offset = currentPage > 1 ? limit * (currentPage - 1) : 0
-
     valantisApi.getIds({ limit, offset })
       .then(response => {
         const { data: { result } } = response
         setItemsIds(result);
       })
-        .catch(err => setIsError(true))
+        .catch(() => {})
   }, [currentPage])
 
   // Get items
@@ -59,68 +44,86 @@ const App: React.FC = () => {
           return acc
         }, [] as IItemProps[])
         setItems(uniqueItems)
-        setIsLoading(false)
       })
-        .catch(err => setIsError(true))
+        .catch(() => {})
   }, [itemsIds])
 
-  // Rendering items
-  const renderItems = useCallback(() => {
+  useEffect(() => {
     switch(filterBy) {
-      default:
-      case 'name': {
-        const sortedItems = items.sort((a, b) => a.product > b.product ? 1 : -1)
-        const renderItems = sortedItems.map(item => <Item key={item.id} {...item} />)
-        return renderItems
-      }
-      case 'brand': {
-        const sortedItems = items.sort((a, b) => {
-          if(a.brand == b.brand) return 0
-          if(a.brand == null) return 1
-          if(b.brand == null) return -1
-          return a.brand > b.brand ? 1 : -1;
+      case 'name':
+        valantisApi.filter({
+          name: filterValue as string
         })
-        const renderItems = sortedItems.map(item => <Item key={item.id} {...item} />)
-        return renderItems
-      }
-      case 'price': {
-        const sortedItems = items.sort((a, b) => a.price > b.price ? 1 : -1)
-        const renderItems = sortedItems.map(item => <Item key={item.id} {...item} />)
-        return renderItems
-      }
+          .then(response => {
+            const result = response.data.result
+            setItemsIds(result)
+          })
+            .catch(() => {})
+        break
+      case 'brand':
+        valantisApi.filter({
+          brand: filterValue as string
+        })
+          .then(response => {
+            const result = response.data.result
+            setItemsIds(result)
+          })
+            .catch(() => {})
+        break
+      case 'price':
+        valantisApi.filter({
+          price: filterValue as number
+        })
+          .then(response => {
+            const result = response.data.result
+            console.log(result);
+            setItemsIds(result)
+          })
+            .catch(() => {})
+        break
+      default:
+        valantisApi.getIds({})
+          .then(response => {
+            const { data: { result } } = response
+            const totalItems = result.length
+            const pages = Math.ceil(totalItems / limit)
+            setPagesCount(pages)
+          })
+            .catch(() => {})
+        break
     }
-  }, [filterBy, items])
+  }, [filterBy])
 
-  if(isError) {
-    return (
-      <p>Ошибка загрузки. Повторите позднее</p>
-    )
-  }
-
-  if(isLoading) {
-    return (
-      <p>Загрузка товаров</p>
-    )
-  }
+  // Rendering items
+  const renderItems = useCallback(() => {   
+    const renderItems = items.map(item => <Item key={item.id} {...item} />)
+    return renderItems
+  }, [items])
 
   return (
     <div className='app'>
       <p>Фильтр</p>
-      <select className='filter-select' onChange={e => setFilterBy(e.currentTarget.value)} name="filter-by" id="filter-by" defaultValue={filterBy}>
+      <select className='filter-select' onChange={e => setFilterBy(e.currentTarget.value)} name="filter-by" id="filter-by" defaultValue={undefined}>
+        <option value={undefined}>Без фильтра</option>
         <option value="name">name</option>
         <option value="brand">brand</option>
         <option value="price">price</option>
       </select>
+      <input type="text" onChange={e => setFilterValue(e.currentTarget.value)} />
       <div className='products'>
         {renderItems()}
       </div>
-      <Pagination 
-        startPage={1}
-        buttonsPerPage={9}
-        currentPage={currentPage}
-        onPageChange={pageChangeHandler}
-        pagesCount={pagesCount}
-      />
+      {
+        filterBy !== undefined
+        ? null
+        : <Pagination 
+            startPage={1}
+            buttonsPerPage={9}
+            currentPage={currentPage}
+            onPageChange={pageChangeHandler}
+            pagesCount={pagesCount}
+          />
+      }
     </div>
   )
 }
