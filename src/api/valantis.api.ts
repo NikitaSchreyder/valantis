@@ -17,7 +17,7 @@ export class ValantisApi {
     this.API_AUTH = md5(`Valantis_${date}`)
     
     this.axiosApi = axios.create({
-      baseURL: 'http://api.valantis.store:40000',
+      baseURL: 'http://api.valantis.store:40000/',
       headers: {
         'X-Auth': this.API_AUTH
       }
