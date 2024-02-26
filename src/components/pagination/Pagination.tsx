@@ -44,9 +44,9 @@ const Pagination: React.FC<IPaginationProps> = ({buttonsPerPage, currentPage, pa
 
   return (
     <div className="pagination">
-      <button className="pagination_button" disabled={currentPage == startPage ? true : false} onClick={decrementPage}>-</button>
+      <button className="pagination_button" disabled={currentPage === startPage ? true : false} onClick={decrementPage}>-</button>
       {renderBtns()}
-      <button className="pagination_button" disabled={currentPage == pagesCount ? true : false} onClick={incrementPage}>+</button>
+      <button className="pagination_button" disabled={currentPage === pagesCount ? true : false} onClick={incrementPage}>+</button>
     </div>
   )
 }
