@@ -1,0 +1,21 @@
+.pagination_button {
+  border: none;
+  border-radius: 100%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  background-color: rgb(240, 240, 240);
+}
+
+.pagination_button:hover {
+  background-color: rgb(220, 220, 220);
+}
+
+.pagination_button:disabled:hover {
+  background-color: rgb(240, 240, 240);
+  cursor: not-allowed;
+}
+
+.pagination_button--selected {
+  background-color: rgb(200, 200, 200);
+}
