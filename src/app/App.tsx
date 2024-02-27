@@ -86,7 +86,6 @@ const App: React.FC = () => {
         })
           .then(response => {
             const result = response.data.result
-            console.log(result);
             setItemsIds(result)
           })
             .catch(() => {})
