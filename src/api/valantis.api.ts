@@ -15,9 +15,9 @@ export class ValantisApi {
   constructor() {
     const date = new Date().toLocaleString('ru', { dateStyle: 'short', timeZone: "Europe/Moscow" }).split('.').reverse().join().replaceAll(',', '')
     this.API_AUTH = md5(`Valantis_${date}`)
-    
+
     this.axiosApi = axios.create({
-      baseURL: 'http://api.valantis.store:40000/',
+      baseURL: 'https://api.valantis.store:41000/',
       headers: {
         'X-Auth': this.API_AUTH
       }
@@ -41,3 +41,5 @@ export class ValantisApi {
 
   }
 }
+
+export const valantisApi = new ValantisApi()

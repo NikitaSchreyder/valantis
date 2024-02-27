@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ValantisApi } from '../api/valantis.api';
+import { valantisApi } from '../api/valantis.api';
 
 import Item from '../components/item/Item';
 import Pagination from '../components/pagination/Pagination';
@@ -10,16 +10,26 @@ import './app.css'
 
 const App: React.FC = () => {
   const limit = 50
-  const valantisApi = new ValantisApi()
 
   const [items, setItems] = useState<IItemProps[]>([])
   const [itemsIds, setItemsIds] = useState<string[]>([])
   const [filterBy, setFilterBy] = useState<string | undefined>(undefined)
-  const [filterValue, setFilterValue] = useState<string | number>()
+  const [filterValue, setFilterValue] = useState<string | number>('')
   const [pagesCount, setPagesCount] = useState<number>(0)
   const [currentPage, setCurrentPage] = useState<number>(1)
 
   const pageChangeHandler = (page: number) => setCurrentPage(page)
+
+  // Get items count
+  useEffect(() => {
+    valantisApi.getIds({})
+      .then(response => {
+        const { data: { result } } = response
+        const count = Math.ceil(result.length / limit)
+        setPagesCount(count)        
+      })
+        .catch(null)
+  }, [pagesCount])
 
   // Get items ids
   useEffect(() => {
@@ -52,7 +62,7 @@ const App: React.FC = () => {
     switch(filterBy) {
       case 'name':
         valantisApi.filter({
-          name: filterValue as string
+          product: filterValue?.toString()
         })
           .then(response => {
             const result = response.data.result
@@ -62,7 +72,7 @@ const App: React.FC = () => {
         break
       case 'brand':
         valantisApi.filter({
-          brand: filterValue as string
+          brand: filterValue?.toString()
         })
           .then(response => {
             const result = response.data.result
@@ -72,7 +82,7 @@ const App: React.FC = () => {
         break
       case 'price':
         valantisApi.filter({
-          price: filterValue as number
+          price: Number(Number(filterValue).toFixed(1))
         })
           .then(response => {
             const result = response.data.result
